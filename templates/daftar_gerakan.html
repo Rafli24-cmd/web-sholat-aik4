@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Daftar Gerakan — Mode {{ mode | capitalize }}{% endblock %}
+
+{% block head %}
+<style>
+  .page-hero {
+    padding: 36px 24px 40px;
+    background: {% if mode == 'anak' %}linear-gradient(135deg,#f59e0b,#d97706){% else %}linear-gradient(135deg,#15803d,#166534){% endif %};
+    color: white;
+    text-align: center;
+  }
+  .page-hero h1 { font-family:'Sora',sans-serif; font-size:1.6rem; font-weight:700; margin-bottom:8px; }
+  .page-hero p  { opacity:0.88; font-size:0.9rem; max-width:500px; margin:0 auto; }
+
+  .mode-switch {
+    display:flex; align-items:center; justify-content:center; gap:10px; margin-top:20px;
+  }
+  .mode-btn {
+    padding:7px 18px; border-radius:20px; font-size:0.82rem; font-weight:600;
+    text-decoration:none; border:2px solid rgba(255,255,255,0.5); color:white; transition:all 0.2s;
+  }
+  .mode-btn.active  { background:white; color:{% if mode=='anak' %}#d97706{% else %}#15803d{% endif %}; border-color:white; }
+  .mode-btn:hover:not(.active) { background:rgba(255,255,255,0.15); }
+
+  .gerakan-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax({% if mode=='anak' %}200px{% else %}220px{% endif %},1fr));
+    gap:16px;
+    margin-top:28px;
+  }
+  .gerakan-card {
+    background:white;
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    text-align:center;
+    text-decoration:none;
+    color:var(--navy);
+    transition:all 0.25s;
+    box-shadow:var(--shadow);
+    display:block;
+  }
+  .gerakan-card:hover {
+    transform:translateY(-3px);
+    box-shadow:var(--shadow-lg);
+    border-color:{% if mode=='anak' %}#fde68a{% else %}var(--green-mid){% endif %};
+  }
+  .gerakan-nomor {
+    width:40px; height:40px; border-radius:50%;
+    background:{% if mode=='anak' %}#fef3c7{% else %}var(--green-light){% endif %};
+    color:{% if mode=='anak' %}#d97706{% else %}var(--green-dark){% endif %};
+    font-weight:700; font-size:1rem;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 12px;
+  }
+  .gerakan-thumb {
+    width:80px; height:80px; object-fit:contain;
+    border-radius:8px; margin:0 auto 10px; display:block;
+    background:var(--bg);
+  }
+  .gerakan-thumb-placeholder {
+    width:80px; height:80px;
+    border-radius:8px; margin:0 auto 10px;
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.2rem; opacity:0.5;
+  }
+  .gerakan-nama {
+    font-family:'Sora',sans-serif; font-weight:600;
+    font-size:{% if mode=='anak' %}0.95rem{% else %}0.88rem{% endif %};
+    margin-bottom:4px;
+  }
+  .gerakan-desc {
+    font-size:{% if mode=='anak' %}0.82rem{% else %}0.78rem{% endif %};
+    color:var(--slate); line-height:1.4;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .start-wrap { text-align:center; margin-top:36px; padding-bottom:48px; }
+
+  {% if mode == 'anak' %}
+  .gerakan-card { border-radius:18px; }
+  .gerakan-card:hover { border-color:#fcd34d; background:#fffbeb; }
+  {% endif %}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-hero">
+  <h1>
+    {% if mode == 'anak' %}
+    👦 Belajar Sholat — Mode Anak
+    {% else %}
+    🕌 Tuntunan Sholat — Mode Dewasa
+    {% endif %}
+  </h1>
+  <p>
+    {% if mode == 'anak' %}
+    Yuk belajar gerakan sholat dengan cara yang menyenangkan dan mudah dipahami!
+    {% else %}
+    Pelajari tata cara sholat sesuai HPT Muhammadiyah secara lengkap dan terperinci.
+    {% endif %}
+  </p>
+
+  <div class="mode-switch">
+    <a href="/sholat/dewasa" class="mode-btn {% if mode == 'dewasa' %}active{% endif %}">🧑 Mode Dewasa</a>
+    <a href="/sholat/anak"   class="mode-btn {% if mode == 'anak' %}active{% endif %}">👦 Mode Anak</a>
+  </div>
+</div>
+
+<div class="container">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:28px;flex-wrap:wrap;gap:12px;">
+    <div>
+      <h2 style="font-family:'Sora',sans-serif;font-size:1.1rem;font-weight:700;">
+        Urutan Gerakan Sholat
+      </h2>
+      <p class="text-muted">{{ gerakan_list|length }} gerakan · Klik untuk melihat detail</p>
+    </div>
+    <a href="/sholat/{{ mode }}/gerakan/1" class="btn btn-primary {% if mode=='anak' %}btn-gold{% endif %}">
+      ▶ Mulai dari Awal
+    </a>
+  </div>
+
+  <div class="gerakan-grid">
+    {% for g in gerakan_list %}
+    <a href="/sholat/{{ mode }}/gerakan/{{ g.urutan }}" class="gerakan-card fade-in">
+      <div class="gerakan-nomor">{{ g.urutan }}</div>
+
+      {% if g.gambar_url %}
+        <img src="{{ g.gambar_url }}" alt="{{ g.nama }}" class="gerakan-thumb"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="gerakan-thumb-placeholder" style="display:none">🤲</div>
+      {% else %}
+        <div class="gerakan-thumb-placeholder">🤲</div>
+      {% endif %}
+
+      <div class="gerakan-nama">{{ g.nama }}</div>
+      <p class="gerakan-desc">
+        {% if mode == 'anak' %}
+          {{ g.deskripsi_anak }}
+        {% else %}
+          {{ g.deskripsi }}
+        {% endif %}
+      </p>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="start-wrap">
+    <a href="/sholat/{{ mode }}/gerakan/1" class="btn btn-primary btn-lg {% if mode=='anak' %}btn-gold{% endif %}">
+      ▶ Mulai Belajar dari Gerakan Pertama
+    </a>
+    <p class="text-muted mt-4">Atau klik salah satu gerakan di atas untuk langsung menuju gerakan tertentu.</p>
+  </div>
+</div>
+
+{% endblock %}
